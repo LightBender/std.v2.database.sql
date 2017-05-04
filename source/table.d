@@ -13,10 +13,10 @@ public final class SqlTable
 {
 	private Nullable!SqlPrimitive[][] table;
 
-	public this(T...)()
+	public this(T...)(T columnTypes)
 		if(allSatisfy!(columnTypes, bool, byte, ubyte, short, ushort, int, uint, long, ulong,// cent, ucent, -- Compiler error when included
 			float, double, real, ifloat, idouble, ireal, cfloat, cdouble, creal, char, wchar, dchar,
-			ubyte[], string, wstring, dstring, UUID, Date, DateTime, TimeOfDay, Duration, SqlTable))
+			ubyte[], string, wstring, dstring, UUID, Date, DateTime, TimeOfDay, Duration, SqlTable, Object))
 	{
 		table.reserve(columnTypes.length);
 
@@ -50,13 +50,14 @@ public final class SqlTable
 			if(is(columnTypes[i] == TimeOfDay)) table[i] = new Nullable!(Algebraic!TimeOfDay)[];
 			if(is(columnTypes[i] == Duration)) table[i] = new Nullable!(Algebraic!Duration)[];
 			if(is(columnTypes[i] == SqlTable)) table[i] = new Nullable!(Algebraic!SqlTable)[];
+			if(is(columnTypes[i] == Object)) table[i] = new Nullable!(Algebraic!Object)[];
 		}
 	}
 
-	public this(T...)(uint reserveRows)
+	public this(T...)(uint reserveRows, T columnTypes)
 		if(allSatisfy!(columnTypes, bool, byte, ubyte, short, ushort, int, uint, long, ulong,// cent, ucent, -- Compiler error when included
 			float, double, real, ifloat, idouble, ireal, cfloat, cdouble, creal, char, wchar, dchar,
-			ubyte[], string, wstring, dstring, UUID, Date, DateTime, TimeOfDay, Duration, SqlTable))
+			ubyte[], string, wstring, dstring, UUID, Date, DateTime, TimeOfDay, Duration, SqlTable, Object))
 	{
 		table.reserve(columnTypes.length);
 
@@ -89,7 +90,7 @@ public final class SqlTable
 			if(is(columnTypes[i] == DateTime)) table[i] = new Nullable!(Algebraic!DateTime)[];
 			if(is(columnTypes[i] == TimeOfDay)) table[i] = new Nullable!(Algebraic!TimeOfDay)[];
 			if(is(columnTypes[i] == Duration)) table[i] = new Nullable!(Algebraic!Duration)[];
-			if(is(columnTypes[i] == SqlTable)) table[i] = new Nullable!(Algebraic!SqlTable)[];
+			if(is(columnTypes[i] == Object)) table[i] = new Nullable!(Algebraic!Object)[];
 
 			table[i].reserve(reserveRows);
 		}
