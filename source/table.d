@@ -53,9 +53,9 @@ unittest
 
 	auto reserved = new SqlTable!(string, wstring, bool, long)(100);
 
-	reserved.setField!string(0,0,Nullable!string("Hello World!"));
-	auto test = reserved.getField!string(0,0);
+	reserved.setField!string(0, 0, Nullable!string("Hello SqlTable!"));
+	auto test = reserved.getField!string(0, 0);
 
 	writeln(test);
-	assert(test == "Hello World!");
+	assert(test == "Hello SqlTable!");
 }

@@ -26,3 +26,16 @@ public class SqlRow(T...)
 		fields[ordinal] = Variant(value.get());
 	}
 }
+
+unittest
+{
+	import std.stdio;
+
+	auto row = new SqlRow!(string, wstring, bool, long)();
+
+	row.setField!string(0, Nullable!string("Hello SqlRow!"));
+	auto test = row.getField!string(0);
+
+	writeln(test);
+	assert(test == "Hello SqlRow!");
+}
