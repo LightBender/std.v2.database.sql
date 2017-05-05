@@ -2,12 +2,14 @@ module std.experimental.database.sql.reader;
 
 import std.typecons;
 
-public interface SqlReader
+import std.experimental.database.sql.row;
+
+public interface SqlReader(T...)
 {
-	int FieldCount();
-	bool HasRows();
+	@property bool hasRows();
 
-	bool Read();
+	bool next();
 
-	Nullable!T GetFieldValue(T)(int fieldOrdinal);
+	Nullable!T getField(T)(int fieldOrdinal);
+	SqlRow!T getRow();
 }

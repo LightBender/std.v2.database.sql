@@ -19,13 +19,13 @@ public enum SqlParameterDirection
 
 public struct SqlParameter
 {
-    Nullable!Variant value;
-    bool nullable;
-    int length;
-    ubyte precision;
-    ubyte scale;
-    string udtName;
-    SqlParameterDirection direction;
+    public Nullable!Variant value;
+    public bool nullable;
+    public int length;
+    public ubyte precision;
+    public ubyte scale;
+    public string udtName;
+    public SqlParameterDirection direction;
 }
 
 public struct SqlQuery
@@ -38,7 +38,7 @@ public struct SqlQuery
 
 public interface SqlExecutor
 {
-    void QueryNoResult(SqlQuery query);
-    SqlReader QueryReader(SqlQuery query);
-    SqlTableBase QueryTable(SqlQuery query);
+    void queryNoResult(SqlQuery query);
+    SqlReader!T queryReader(T...)(SqlQuery query);
+    SqlTable!T queryTable(T...)(SqlQuery query);
 }
