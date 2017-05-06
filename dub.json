@@ -6,5 +6,9 @@
 	],
 	"description": "Proposed generic SQL database interface API for the D Standard Library.",
 	"copyright": "Copyright © 2017, Adam Wilson",
-	"license": "BSL-1.0"
+	"license": "BSL-1.0",
+	"lflags": ["-L/usr/local/opt/sqlite/lib"],
+	"dependencies": {
+		"d2sqlite3": "~>0.13.0"
+	}
 }
