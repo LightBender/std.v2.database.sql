@@ -19,6 +19,7 @@ public enum SqlParameterDirection
 
 public struct SqlParameter
 {
+    public string name;
     public Nullable!Variant value;
     public bool nullable;
     public int length;

@@ -7,23 +7,54 @@ import std.experimental.database.sql.reader;
 
 public class SqliteReader(T...) : SqlReader!T
 {
+	private immutable ResultRange resultSet;
+	private bool firstRowProcessed = false;
+	private Row currentRow;
+
+	package this(ResultRange resultSet)
+	{
+		this.resultSet = cast(immutable)resultSet;
+	}
+
 	public @property bool hasRows()
 	{
-		return false;
+		return this.resultSet.empty;
 	}
 
 	public bool next()
 	{
-		return false;
+		if (firstRowProcessed)
+		{
+			resultSet.popFront();
+		}
+		else
+		{
+			firstRowProcessed = true;
+		}
+
+		if (!resultSet.empty)
+		{
+			currentRow = resultSet.front();
+		}
+
+		return resultSet.empty;
 	}
 
-	Nullable!T getField(T)(int fieldOrdinal)
+	public Nullable!T getField(T)(int fieldOrdinal)
 	{
-		return Nullable!T;
+		return Nullable!T(currentRow[fieldOrdinal].as!T());
 	}
 
-	SqlRow!T getRow()
+	public SqlRow!T getRow()
 	{
-		return null;
+		auto sqlRow = new SqlRow!T();
+		int typeIdx = 0;
+		foreach(ColumnData cd; currentRow)
+		{
+			sqlRow.setField!T[typeIdx](cd.as!T[typeIdx]());
+			typeIdx++;
+		}
+
+		return sqlRow;
 	}
 }
