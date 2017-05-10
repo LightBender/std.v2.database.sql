@@ -3,17 +3,19 @@ module std.experimental.database.sql.sqlite.reader;
 import d2sqlite3;
 import std.typecons : Nullable;
 
+import std.experimental.database.sql.row;
 import std.experimental.database.sql.reader;
+import std.experimental.database.sql.value;
 
 public class SqliteReader(T...) : SqlReader!T
 {
-	private immutable ResultRange resultSet;
+	private ResultRange resultSet;
 	private bool firstRowProcessed = false;
 	private Row currentRow;
 
 	package this(ResultRange resultSet)
 	{
-		this.resultSet = cast(immutable)resultSet;
+		this.resultSet = resultSet;
 	}
 
 	public @property bool hasRows()
@@ -40,9 +42,9 @@ public class SqliteReader(T...) : SqlReader!T
 		return resultSet.empty;
 	}
 
-	public Nullable!T getField(T)(int fieldOrdinal)
+	public SqlValue getField(int fieldOrdinal)
 	{
-		return Nullable!T(currentRow[fieldOrdinal].as!T());
+		return SqlValue.SqlString(currentRow[fieldOrdinal].as!string());
 	}
 
 	public SqlRow!T getRow()
@@ -51,7 +53,7 @@ public class SqliteReader(T...) : SqlReader!T
 		int typeIdx = 0;
 		foreach(ColumnData cd; currentRow)
 		{
-			sqlRow.setField!T[typeIdx](cd.as!T[typeIdx]());
+			//sqlRow.setField!T[typeIdx](cd.as!T[typeIdx]());
 			typeIdx++;
 		}
 

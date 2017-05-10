@@ -3,27 +3,25 @@ module std.experimental.database.sql.row;
 import std.typecons;
 import std.variant;
 
+import std.experimental.database.sql.value;
+
 public class SqlRow(T...)
 {
-	private Nullable!Variant[] fields;
+	private SqlValue[] fields;
 
 	public this()
 	{
-		fields = new Nullable!Variant[](T.length);
+		fields = new SqlValue[](T.length);
 	}
 
-	public Nullable!T getField(T)(uint ordinal)
+	public SqlValue getField(uint ordinal)
 	{
-		if(fields[ordinal].isNull())
-			return Nullable!T();
-		return Nullable!T(fields[ordinal].get().get!T());
+		return fields[ordinal];
 	}
 
-	public void setField(T)(uint ordinal, Nullable!T value)
+	public void setField(uint ordinal, SqlValue value)
 	{
-		if(value is null)
-			fields[ordinal].nullify();
-		fields[ordinal] = Variant(value.get());
+		fields[ordinal] = value;
 	}
 }
 
@@ -33,8 +31,8 @@ unittest
 
 	auto row = new SqlRow!(string, wstring, bool, long)();
 
-	row.setField!string(0, Nullable!string("Hello SqlRow!"));
-	auto test = row.getField!string(0);
+	row.setField(0, SqlValue.SqlString("Hello SqlRow!"));
+	auto test = row.getField(0).get!string();
 
 	writeln(test);
 	assert(test == "Hello SqlRow!");

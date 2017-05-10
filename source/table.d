@@ -9,19 +9,20 @@ import std.uuid;
 
 import std.experimental.database.sql.reader;
 import std.experimental.database.sql.row;
+import std.experimental.database.sql.value;
 
 public final class SqlTable(T...)
 {
 	protected SqlRow!T[] table;
 
-	public Nullable!T getField(T)(uint row, uint column)
+	public SqlValue getField(uint row, uint column)
 	{
-		return table[row].getField!T(column);
+		return table[row].getField(column);
 	}
 
-	public void setField(T)(uint row, uint column, Nullable!T value)
+	public void setField(uint row, uint column, SqlValue value)
 	{
-		table[row].setField!T(column, value);
+		table[row].setField(column, value);
 	}
 
 	public this(uint reserveRows)
@@ -50,11 +51,12 @@ public final class SqlTable(T...)
 unittest
 {
 	import std.stdio;
+	writeln("Testing SqlTable");
 
 	auto reserved = new SqlTable!(string, wstring, bool, long)(100);
 
-	reserved.setField!string(0, 0, Nullable!string("Hello SqlTable!"));
-	auto test = reserved.getField!string(0, 0);
+	reserved.setField(0, 0, SqlValue.SqlString("Hello SqlTable!"));
+	auto test = reserved.getField(0, 0).get!string();
 
 	writeln(test);
 	assert(test == "Hello SqlTable!");

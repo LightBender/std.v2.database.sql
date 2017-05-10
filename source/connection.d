@@ -8,19 +8,47 @@ import std.uuid;
 
 public struct SqlConnection
 {
-    public immutable char[253] hostname;
+    public immutable string hostname;
     public immutable ushort port;
-    public immutable char[128] username;
-	public immutable char[128] password;
+    public immutable string username;
+	public immutable string password;
 
     public immutable SqlConnectionKeyValue[] args;
+
+    public this(string hostname, ushort port = 0)
+	in
+	{
+		assert(hostname.length < 253, "Parameter 'hostname' must contain no more than 253 characters.");
+	}
+	body
+	{
+		this.hostname = hostname;
+		this.port = port;
+		this.username = null;
+		this.password = null;
+    }
+
+    public this(string hostname, ushort port, string username, string password)
+	in
+	{
+		assert(hostname.length < 253, "Parameter 'hostname' must contain no more than 253 characters.");
+		assert(username.length < 128, "Parameter 'username' must contain no more than 128 characters.");
+		assert(password.length < 128, "Parameter 'password' must contain no more than 128 characters.");
+	}
+	body
+	{
+		this.hostname = hostname;
+		this.port = port;
+		this.username = username;
+		this.password = password;
+    }
 
     public this(T...)(string hostname, ushort port, string username, string password, T args)
 	in
 	{
-		assert(hostname < 253, "Parameter 'hostname' must contain no more than 253 characters.");
-		assert(username < 128, "Parameter 'username' must contain no more than 128 characters.");
-		assert(password < 128, "Parameter 'password' must contain no more than 128 characters.");
+		assert(hostname.length < 253, "Parameter 'hostname' must contain no more than 253 characters.");
+		assert(username.length < 128, "Parameter 'username' must contain no more than 128 characters.");
+		assert(password.length < 128, "Parameter 'password' must contain no more than 128 characters.");
 		assert(args.length != 0 && args.length % 2 == 0, "Parameter 'args' must contain an even number of items.");
 	}
 	body
