@@ -30,21 +30,18 @@ public class SqliteReader : SqlReader
 		if (firstRowProcessed)
 		{
 			resultSet.popFront();
-			writeln("Popped row.");
 		}
 		else
 		{
-			writeln("Is first row.");
 			firstRowProcessed = true;
 		}
 
 		if (!resultSet.empty)
 		{
 			currentRow = resultSet.front();
-			writeln("Set currentRow");
 		}
 
-		return resultSet.empty;
+		return !resultSet.empty;
 	}
 
 	public SqlValue getField(int fieldOrdinal)
@@ -71,10 +68,8 @@ public class SqliteReader : SqlReader
 	{
 		auto sqlRow = new SqlRow(currentRow.length);
 		int c = 0;
-		writeln("Current Row Columns: ", currentRow.length);
 		foreach(ColumnData cd; currentRow)
 		{
-			writeln("Retrieved column: ", c);
 			switch(cd.type)
 			{
 				case SqliteType.NULL:
