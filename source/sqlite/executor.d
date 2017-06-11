@@ -7,6 +7,7 @@ import std.variant : Variant;
 import std.uuid;
 
 import std.experimental.database.sql.connection;
+import std.experimental.database.sql.reader;
 import std.experimental.database.sql.sqlite.reader;
 import std.experimental.database.sql.table;
 import std.experimental.database.sql.query;
@@ -21,19 +22,19 @@ public class SqliteExecutor : SqlExecutor
 		statement.execute();
 	}
 
-    public SqlReader!T queryReader(T...)(SqlQuery query)
+    public SqlReader queryReader(SqlQuery query)
 	{
 		auto db = getDatabase(query.conn);
 		auto statement = prepareQuery(db, query);
-		return new SqliteReader!T(statement.execute());
+		return new SqliteReader(statement.execute());
 	}
 
-    public SqlTable!T queryTable(T...)(SqlQuery query)
+    public SqlTable queryTable(SqlQuery query)
 	{
 		auto db = getDatabase(query.conn);
 		auto statement = prepareQuery(db, query);
-		auto reader = new SqliteReader!T(statement.execute());
-		return new SqlTable!T(reader);
+		auto reader = new SqliteReader(statement.execute());
+		return new SqlTable(reader);
 	}
 
 	private Database getDatabase(SqlConnection conn)
@@ -126,25 +127,34 @@ public class SqliteExecutor : SqlExecutor
 
 unittest
 {
-	SqlConnection conn = SqlConnection(":memory:");
+	SqlConnection conn = SqlConnection("test.db");
 	auto executor = new SqliteExecutor();
 
 	//Create the table
-	SqlQuery query = SqlQuery(conn, "DROP TABLE IF EXISTS person;
-        CREATE TABLE person (
+	SqlQuery query1 = SqlQuery(conn, "DROP TABLE IF EXISTS person;");
+	executor.queryNoResult(query1);
+
+	SqlQuery query2 = SqlQuery(conn,
+		"CREATE TABLE person (
           id    INTEGER PRIMARY KEY,
           name  TEXT NOT NULL,
           score FLOAT
-        )");
-	executor.queryNoResult(query);
+        );");
+	executor.queryNoResult(query2);
 
 	//Insert some data into the table
 	SqlQuery insert = SqlQuery(conn, "INSERT INTO person (name, score) VALUES (:name, :score)");
-	insert.params ~= SqlParameter(":name", SqlValue.SqlString("Adam Wilson"));
+	insert.params ~= SqlParameter(":name", SqlValue.SqlString("Hello DLang!"));
 	insert.params ~= SqlParameter(":score", SqlValue.SqlFloat(10.0f));
-	executor.queryNoResult(query);
+	executor.queryNoResult(insert);
 
 	//Extract the inserted data into a SqlTable
-	//SqlQuery extrat = SqlQuery(conn, "SELECT name, score FROM person");
-	//auto table = executor.queryTable!(string, float)(query);
+	SqlQuery extract = SqlQuery(conn, "SELECT name, score FROM person");
+	auto table = executor.queryTable(extract);
+
+	auto tv1 = table.getField(0,0).get!string();
+	auto tv2 = table.getField(0,1).get!float();
+
+	assert(tv1 == "Hello DLang!");
+	assert(tv2 == 10.0f);
 }

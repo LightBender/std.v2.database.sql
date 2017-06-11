@@ -11,40 +11,43 @@ import std.experimental.database.sql.reader;
 import std.experimental.database.sql.row;
 import std.experimental.database.sql.value;
 
-public final class SqlTable(T...)
+import std.stdio;
+
+public final class SqlTable
 {
-	protected SqlRow!T[] table;
+	protected SqlRow[] rows;
 
 	public SqlValue getField(uint row, uint column)
 	{
-		return table[row].getField(column);
+		return rows[row].getField(column);
 	}
 
 	public void setField(uint row, uint column, SqlValue value)
 	{
-		table[row].setField(column, value);
+		rows[row].setField(column, value);
 	}
 
-	public this(uint reserveRows)
+	public this(uint reserveColumns, uint reserveRows)
 	{
-		table = new SqlRow!T[](reserveRows);
+		rows = new SqlRow[](reserveRows);
 		for(int i = 0; i < reserveRows; i++)
 		{
-			table[i] = new SqlRow!T();
+			rows[i] = new SqlRow(reserveColumns);
 		}
 	}
 
-	public this(SqlReader!T reader)
+	public this(SqlReader reader)
 	{
 		while(reader.next())
 		{
-			table ~= reader.getRow();
+			writeln("Found Row");
+			rows ~= reader.getRow();
 		}
 	}
 
-	public this(SqlRow!T[] rows)
+	public this(SqlRow[] rows)
 	{
-		table = rows;
+		this.rows = rows;
 	}
 }
 
@@ -53,7 +56,7 @@ unittest
 	import std.stdio;
 	writeln("Testing SqlTable");
 
-	auto reserved = new SqlTable!(string, wstring, bool, long)(100);
+	auto reserved = new SqlTable(4, 100);
 
 	reserved.setField(0, 0, SqlValue.SqlString("Hello SqlTable!"));
 	auto test = reserved.getField(0, 0).get!string();

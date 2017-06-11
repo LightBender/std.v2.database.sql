@@ -7,7 +7,9 @@ import std.experimental.database.sql.row;
 import std.experimental.database.sql.reader;
 import std.experimental.database.sql.value;
 
-public class SqliteReader(T...) : SqlReader!T
+import std.stdio;
+
+public class SqliteReader : SqlReader
 {
 	private ResultRange resultSet;
 	private bool firstRowProcessed = false;
@@ -28,15 +30,18 @@ public class SqliteReader(T...) : SqlReader!T
 		if (firstRowProcessed)
 		{
 			resultSet.popFront();
+			writeln("Popped row.");
 		}
 		else
 		{
+			writeln("Is first row.");
 			firstRowProcessed = true;
 		}
 
 		if (!resultSet.empty)
 		{
 			currentRow = resultSet.front();
+			writeln("Set currentRow");
 		}
 
 		return resultSet.empty;
@@ -44,17 +49,51 @@ public class SqliteReader(T...) : SqlReader!T
 
 	public SqlValue getField(int fieldOrdinal)
 	{
-		return SqlValue.SqlString(currentRow[fieldOrdinal].as!string());
+		ColumnData cd = currentRow[fieldOrdinal];
+		switch(cd.type)
+		{
+			case SqliteType.NULL:
+				return SqlValue.SqlNull();
+			case SqliteType.BLOB:
+				return SqlValue.SqlUByteArray(cd.as!(ubyte[])());
+			case SqliteType.FLOAT:
+				return SqlValue.SqlFloat(cd.as!float());
+			case SqliteType.INTEGER:
+				return SqlValue.SqlLong(cd.as!long());
+			case SqliteType.TEXT:
+				return SqlValue.SqlString(cd.as!string());
+			default:
+				return SqlValue.SqlNull();
+		}
 	}
 
-	public SqlRow!T getRow()
+	public SqlRow getRow()
 	{
-		auto sqlRow = new SqlRow!T();
-		int typeIdx = 0;
+		auto sqlRow = new SqlRow(currentRow.length);
+		int c = 0;
+		writeln("Current Row Columns: ", currentRow.length);
 		foreach(ColumnData cd; currentRow)
 		{
-			//sqlRow.setField!T[typeIdx](cd.as!T[typeIdx]());
-			typeIdx++;
+			writeln("Retrieved column: ", c);
+			switch(cd.type)
+			{
+				case SqliteType.NULL:
+					sqlRow.setField(c++, SqlValue.SqlNull());
+					break;
+				case SqliteType.BLOB:
+					sqlRow.setField(c++, SqlValue.SqlUByteArray(cd.as!(ubyte[])()));
+					break;
+				case SqliteType.FLOAT:
+					sqlRow.setField(c++, SqlValue.SqlFloat(cd.as!float()));
+					break;
+				case SqliteType.INTEGER:
+					sqlRow.setField(c++, SqlValue.SqlLong(cd.as!long()));
+					break;
+				case SqliteType.TEXT:
+					sqlRow.setField(c++, SqlValue.SqlString(cd.as!string()));
+					break;
+				default: break;
+			}
 		}
 
 		return sqlRow;

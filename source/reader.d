@@ -4,12 +4,12 @@ import std.typecons;
 
 import std.experimental.database.sql.row;
 
-public interface SqlReader(T...)
+public interface SqlReader
 {
 	@property bool hasRows();
 
 	bool next();
 
 	Nullable!T getField(T)(int fieldOrdinal);
-	SqlRow!T getRow();
+	SqlRow getRow();
 }

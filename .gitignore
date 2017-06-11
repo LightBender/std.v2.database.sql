@@ -7,3 +7,4 @@ __dummy.html
 *.obj
 __test__*__
 *-test-library
+*.db

@@ -5,13 +5,13 @@ import std.variant;
 
 import std.experimental.database.sql.value;
 
-public class SqlRow(T...)
+public class SqlRow
 {
 	private SqlValue[] fields;
 
-	public this()
+	public this(int columnCount)
 	{
-		fields = new SqlValue[](T.length);
+		fields = new SqlValue[](columnCount);
 	}
 
 	public SqlValue getField(uint ordinal)
@@ -29,7 +29,7 @@ unittest
 {
 	import std.stdio;
 
-	auto row = new SqlRow!(string, wstring, bool, long)();
+	auto row = new SqlRow(1);
 
 	row.setField(0, SqlValue.SqlString("Hello SqlRow!"));
 	auto test = row.getField(0).get!string();
