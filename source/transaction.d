@@ -19,9 +19,9 @@ struct SqlTransaction {
 }
 
 interface ISqlTransaction {
-    void start(ref Transaction);
-    void finish(ref Transaction);
+    void start(ref SqlTransaction);
+    void finish(ref SqlTransaction);
 
-	void commit(ref Transaction);
-	void rollBack(ref Transaction);
+	void commit(ref SqlTransaction);
+	void rollBack(ref SqlTransaction);
 }
