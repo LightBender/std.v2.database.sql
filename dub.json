@@ -9,6 +9,6 @@
 	"license": "BSL-1.0",
 	"lflags": ["-L/usr/local/opt/sqlite/lib"],
 	"dependencies": {
-		"d2sqlite3": "~>0.13.0"
+		"d2sqlite3": "~>0.13.1"
 	}
 }

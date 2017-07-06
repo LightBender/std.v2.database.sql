@@ -6,84 +6,60 @@ import std.typecons;
 import std.variant;
 import std.uuid;
 
-public struct SqlConnection
+import std.experimental.database.sql.query;
+import std.experimental.database.sql.reader;
+import std.experimental.database.sql.table;
+
+public abstract class SqlConnection
 {
-    public immutable string hostname;
-    public immutable ushort port;
-    public immutable string username;
-	public immutable string password;
+    protected immutable string m_uri;
+    protected SqlConnectionKeyValue[] m_args;
 
-    public immutable SqlConnectionKeyValue[] args;
-
-    public this(string hostname, ushort port = 0)
-	in
-	{
-		assert(hostname.length < 253, "Parameter 'hostname' must contain no more than 253 characters.");
-	}
-	body
-	{
-		this.hostname = hostname;
-		this.port = port;
-		this.username = null;
-		this.password = null;
+    protected this(string uri, SqlConnectionKeyValue[] args)
+    {
+        m_uri = uri;
+        if (args !is null)
+        {
+			//TODO: Want to do something else here
+			m_args = args;
+        }
+        else
+        {
+            m_args = new SqlConnectionKeyValue[0];
+        }
     }
 
-    public this(string hostname, ushort port, string username, string password)
-	in
-	{
-		assert(hostname.length < 253, "Parameter 'hostname' must contain no more than 253 characters.");
-		assert(username.length < 128, "Parameter 'username' must contain no more than 128 characters.");
-		assert(password.length < 128, "Parameter 'password' must contain no more than 128 characters.");
-	}
-	body
-	{
-		this.hostname = hostname;
-		this.port = port;
-		this.username = username;
-		this.password = password;
-    }
+    public final @property string uri() const { return this.m_uri; }
+    public final @property SqlConnectionKeyValue[] args() { return this.m_args; }
 
-    public this(T...)(string hostname, ushort port, string username, string password, T args)
-	in
-	{
-		assert(hostname.length < 253, "Parameter 'hostname' must contain no more than 253 characters.");
-		assert(username.length < 128, "Parameter 'username' must contain no more than 128 characters.");
-		assert(password.length < 128, "Parameter 'password' must contain no more than 128 characters.");
-		assert(args.length != 0 && args.length % 2 == 0, "Parameter 'args' must contain an even number of items.");
-	}
-	body
-	{
-		this.hostname = hostname;
-		this.port = port;
-		this.username = username;
-		this.password = password;
+    public abstract bool open();
+    public abstract void close();
 
-		if (args.length != 0)
-		{
-			args = new SqlConnectionKeyValue[args.length % 2];
-			for(int i = 0; i < args.length; i+2)
-			{
-				args[i/2] = SqlConnectionKeyValue(to!string(args[i]), args[i+1]);
-			}
-		}
-    }
+    public abstract void queryNoResult(SqlQuery query);
+    public abstract SqlReader!T queryReader(T...)(SqlQuery query);
+    public abstract SqlTable!T queryTable(T...)(SqlQuery query);
+
+    public abstract void beginTransaction();
+    public abstract void commitTransaction();
+    public abstract void rollBackTransaction();
 }
 
-public struct SqlConnectionKeyValue
+package struct SqlConnectionKeyValue
 {
     public immutable char[64] key;
     public immutable Algebraic!(bool, byte, ubyte, short, ushort, int, uint, long, ulong, float, double, real, string, wstring, dstring) value;
 
-	package this(T)(string key, T value)
-		if (is(T == bool) || is(T == byte) || is(T == ubyte) || is(T == short) || is(T == ushort) || is(T == int) || is(T == uint) || is(T == long) || is(T == ulong) ||
-			is(T == float) || is(T == double) || is(T == real) || is(T == string) || is(T == wstring) || is(T == dstring))
-	in
-	{
-		assert(key.length < 64, "Parameter 'key' cannot be more than 6 characters.");
-	}
-	body
-	{
-		this.key = key;
-		this.value = value;
-	}
+    package this(T)(string key, T value)
+        if (is(T == bool) || is(T == byte) || is(T == ubyte) || is(T == short) || is(T == ushort) || is(T == int) ||
+            is(T == uint) || is(T == long) || is(T == ulong) ||
+            is(T == float) || is(T == double) || is(T == real) || is(T == string) || is(T == wstring) || is(T == dstring))
+    in
+    {
+        assert(key.length < 64, "Parameter 'key' cannot be more than 64 characters.");
+    }
+    body
+    {
+        this.key = key;
+        this.value = value;
+    }
 }

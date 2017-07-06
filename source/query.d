@@ -12,10 +12,10 @@ import std.experimental.database.sql.value;
 
 public enum SqlParameterDirection
 {
-	Input,
-	InputOutput,
-	Output,
-	Return,
+    Input,
+    InputOutput,
+    Output,
+    Return,
 }
 
 public struct SqlParameter
@@ -46,20 +46,11 @@ public struct SqlQuery
 {
     public string query;
     public int timeout;
-    public SqlConnection conn;
     public SqlParameter[] params;
 
-    public this(SqlConnection conn, string query, int timeout = 0)
+    public this(string query, int timeout = 0)
     {
-        this.conn = conn;
         this.query = query;
         this.timeout = timeout;
     }
-}
-
-public interface SqlExecutor
-{
-    void queryNoResult(SqlQuery query);
-    SqlReader!T queryReader(T...)(SqlQuery query);
-    SqlTable!T queryTable(T...)(SqlQuery query);
 }

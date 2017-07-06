@@ -5,7 +5,7 @@ import std.variant;
 
 import std.experimental.database.sql.value;
 
-public class SqlRow
+public final class SqlRow
 {
 	private SqlValue[] fields;
 

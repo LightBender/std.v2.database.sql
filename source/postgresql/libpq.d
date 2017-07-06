@@ -38,69 +38,69 @@ enum PG_COPYRES_NOTICEHOOKS = 0x08;
 
 enum ConnStatusType
 {
-	CONNECTION_OK,
-	CONNECTION_BAD,
-	CONNECTION_STARTED,
-	CONNECTION_MADE,
-	CONNECTION_AWAITING_RESPONSE,
-	CONNECTION_AUTH_OK,
-	CONNECTION_SETENV,
-	CONNECTION_SSL_STARTUP,
-	CONNECTION_NEEDED
+    CONNECTION_OK,
+    CONNECTION_BAD,
+    CONNECTION_STARTED,
+    CONNECTION_MADE,
+    CONNECTION_AWAITING_RESPONSE,
+    CONNECTION_AUTH_OK,
+    CONNECTION_SETENV,
+    CONNECTION_SSL_STARTUP,
+    CONNECTION_NEEDED
 }
 
 enum PostgresPollingStatusType
 {
-	PGRES_POLLING_FAILED = 0,
-	PGRES_POLLING_READING,
-	PGRES_POLLING_WRITING,
-	PGRES_POLLING_OK,
-	PGRES_POLLING_ACTIVE
+    PGRES_POLLING_FAILED = 0,
+    PGRES_POLLING_READING,
+    PGRES_POLLING_WRITING,
+    PGRES_POLLING_OK,
+    PGRES_POLLING_ACTIVE
 }
 
 enum ExecStatusType
 {
-	PGRES_EMPTY_QUERY = 0,
-	PGRES_COMMAND_OK,
-	PGRES_TUPLES_OK,
-	PGRES_COPY_OUT,
-	PGRES_COPY_IN,
-	PGRES_BAD_RESPONSE,
-	PGRES_NONFATAL_ERROR,
-	PGRES_FATAL_ERROR,
-	PGRES_COPY_BOTH,
-	PGRES_SINGLE_TUPLE
+    PGRES_EMPTY_QUERY = 0,
+    PGRES_COMMAND_OK,
+    PGRES_TUPLES_OK,
+    PGRES_COPY_OUT,
+    PGRES_COPY_IN,
+    PGRES_BAD_RESPONSE,
+    PGRES_NONFATAL_ERROR,
+    PGRES_FATAL_ERROR,
+    PGRES_COPY_BOTH,
+    PGRES_SINGLE_TUPLE
 }
 
 enum PGTransactionStatusType
 {
-	PQTRANS_IDLE,
-	PQTRANS_ACTIVE,
-	PQTRANS_INTRANS,
-	PQTRANS_INERROR,
-	PQTRANS_UNKNOWN
+    PQTRANS_IDLE,
+    PQTRANS_ACTIVE,
+    PQTRANS_INTRANS,
+    PQTRANS_INERROR,
+    PQTRANS_UNKNOWN
 }
 
 enum PGVerbosity
 {
-	PQERRORS_TERSE,
-	PQERRORS_DEFAULT,
-	PQERRORS_VERBOSE
+    PQERRORS_TERSE,
+    PQERRORS_DEFAULT,
+    PQERRORS_VERBOSE
 }
 
 enum PGContextVisibility
 {
-	PQSHOW_CONTEXT_NEVER,
-	PQSHOW_CONTEXT_ERRORS,
-	PQSHOW_CONTEXT_ALWAYS
+    PQSHOW_CONTEXT_NEVER,
+    PQSHOW_CONTEXT_ERRORS,
+    PQSHOW_CONTEXT_ALWAYS
 }
 
 enum PGPing
 {
-	PQPING_OK,
-	PQPING_REJECT,
-	PQPING_NO_RESPONSE,
-	PQPING_NO_ATTEMPT
+    PQPING_OK,
+    PQPING_REJECT,
+    PQPING_NO_RESPONSE,
+    PQPING_NO_ATTEMPT
 }
 
 struct pg_conn;
@@ -114,10 +114,10 @@ alias PGcancel = pg_cancel;
 
 struct pgNotify
 {
-	char	   *relname;
-	int			be_pid;
-	char	   *extra;
-	pgNotify   *next;
+    char	   *relname;
+    int			be_pid;
+    char	   *extra;
+    pgNotify   *next;
 }
 alias PGnotify = pgNotify;
 
@@ -128,60 +128,60 @@ alias pqbool = char;
 
 struct _PQprintOpt
 {
-	pqbool		header;
-	pqbool		align_;
-	pqbool		standard;
-	pqbool		html3;
-	pqbool		expanded;
-	pqbool		pager;
-	char	   *fieldSep;
-	char	   *tableOpt;
-	char	   *caption;
-	char	  **fieldName;
+    pqbool		header;
+    pqbool		align_;
+    pqbool		standard;
+    pqbool		html3;
+    pqbool		expanded;
+    pqbool		pager;
+    char	   *fieldSep;
+    char	   *tableOpt;
+    char	   *caption;
+    char	  **fieldName;
 }
 alias PQprintOpt = _PQprintOpt;
 
 struct _PQconninfoOption
 {
-	char	   *keyword;
-	char	   *envvar;
-	char	   *compiled;
-	char	   *val;
-	char	   *label;
-	char	   *dispchar;
-	int			dispsize;
+    char	   *keyword;
+    char	   *envvar;
+    char	   *compiled;
+    char	   *val;
+    char	   *label;
+    char	   *dispchar;
+    int			dispsize;
 }
 alias PQconninfoOption = _PQconninfoOption;
 
 struct PQArgBlock
 {
-	int			len;
-	int			isint;
-	union u
-	{
-		int		*ptr;
-		int		integer;
-	}
+    int			len;
+    int			isint;
+    union u
+    {
+        int		*ptr;
+        int		integer;
+    }
 }
 
 struct pgresAttDesc
 {
-	char	   *name;
-	Oid			tableid;
-	int			columnid;
-	int			format;
-	Oid			typid;
-	int			typlen;
-	int			atttypmod;
+    char	   *name;
+    Oid			tableid;
+    int			columnid;
+    int			format;
+    Oid			typid;
+    int			typlen;
+    int			atttypmod;
 }
 alias PGresAttDesc = pgresAttDesc;
 
 PGconn *PQconnectStart(const char *conninfo);
-PGconn *PQconnectStartParams(const char * keywords, const char * values, int expand_dbname);
+PGconn *PQconnectStartParams(const char** keywords, const char** values, int expand_dbname);
 PostgresPollingStatusType PQconnectPoll(PGconn *conn);
 
 PGconn *PQconnectdb(const char *conninfo);
-PGconn *PQconnectdbParams(const char * keywords, const char * values, int expand_dbname);
+PGconn *PQconnectdbParams(const char** keywords, const char** values, int expand_dbname);
 PGconn *PQsetdbLogin(const char *pghost, const char *pgport, const char *pgoptions, const char *pgtty, const char *dbName, const char *login, const char *pwd);
 
 void PQfinish(PGconn *conn);
@@ -230,7 +230,7 @@ int	PQsetClientEncoding(PGconn *conn, const char *encoding);
 int PQsslInUse(PGconn *conn);
 void *PQsslStruct(PGconn *conn, const char *struct_name);
 char *PQsslAttribute(PGconn *conn, const char *attribute_name);
-char * PQsslAttributeNames(PGconn *conn);
+char **PQsslAttributeNames(PGconn *conn);
 
 void *PQgetssl(PGconn *conn);
 
@@ -253,43 +253,43 @@ pgthreadlock_t PQregisterThreadLock(pgthreadlock_t newhandler);
 
 PGresult *PQexec(PGconn *conn, const char *query);
 PGresult *PQexecParams(PGconn *conn,
-			 const char *command,
-			 int nParams,
-			 const Oid *paramTypes,
-			 const char * paramValues,
-			 const int *paramLengths,
-			 const int *paramFormats,
-			 int resultFormat);
+             const char *command,
+             int nParams,
+             const Oid *paramTypes,
+             const char** paramValues,
+             const int *paramLengths,
+             const int *paramFormats,
+             int resultFormat);
 PGresult *PQprepare(PGconn *conn, const char *stmtName,
-		  const char *query, int nParams,
-		  const Oid *paramTypes);
+          const char *query, int nParams,
+          const Oid *paramTypes);
 PGresult *PQexecPrepared(PGconn *conn,
-			   const char *stmtName,
-			   int nParams,
-			   const char * paramValues,
-			   const int *paramLengths,
-			   const int *paramFormats,
-			   int resultFormat);
+               const char *stmtName,
+               int nParams,
+               const char** paramValues,
+               const int *paramLengths,
+               const int *paramFormats,
+               int resultFormat);
 
 int	PQsendQuery(PGconn *conn, const char *query);
 int PQsendQueryParams(PGconn *conn,
-				  const char *command,
-				  int nParams,
-				  const Oid *paramTypes,
-				  const char *paramValues,
-				  const int *paramLengths,
-				  const int *paramFormats,
-				  int resultFormat);
+                  const char *command,
+                  int nParams,
+                  const Oid *paramTypes,
+                  const char** paramValues,
+                  const int *paramLengths,
+                  const int *paramFormats,
+                  int resultFormat);
 int PQsendPrepare(PGconn *conn, const char *stmtName,
-			  const char *query, int nParams,
-			  const Oid *paramTypes);
+              const char *query, int nParams,
+              const Oid *paramTypes);
 int PQsendQueryPrepared(PGconn *conn,
-					const char *stmtName,
-					int nParams,
-					const char * paramValues,
-					const int *paramLengths,
-					const int *paramFormats,
-					int resultFormat);
+                    const char *stmtName,
+                    int nParams,
+                    const char** paramValues,
+                    const int *paramLengths,
+                    const int *paramFormats,
+                    int resultFormat);
 int	PQsetSingleRowMode(PGconn *conn);
 PGresult *PQgetResult(PGconn *conn);
 
@@ -312,25 +312,25 @@ int	PQsetnonblocking(PGconn *conn, int arg);
 int	PQisnonblocking(const PGconn *conn);
 int	PQisthreadsafe();
 PGPing PQping(const char *conninfo);
-PGPing PQpingParams(const char * keywords,
-			 const char * values, int expand_dbname);
+PGPing PQpingParams(const char** keywords,
+             const char** values, int expand_dbname);
 
 int	PQflush(PGconn *conn);
 
 PGresult *PQfn(PGconn *conn,
-	 int fnid,
-	 int *result_buf,
-	 int *result_len,
-	 int result_is_int,
-	 const PQArgBlock *args,
-	 int nargs);
+     int fnid,
+     int *result_buf,
+     int *result_len,
+     int result_is_int,
+     const PQArgBlock *args,
+     int nargs);
 
 ExecStatusType PQresultStatus(const PGresult *res);
 char *PQresStatus(ExecStatusType status);
 char *PQresultErrorMessage(const PGresult *res);
 char *PQresultVerboseErrorMessage(const PGresult *res,
-							PGVerbosity verbosity,
-							PGContextVisibility show_context);
+                            PGVerbosity verbosity,
+                            PGContextVisibility show_context);
 char *PQresultErrorField(const PGresult *res, int fieldcode);
 int	PQntuples(const PGresult *res);
 int	PQnfields(const PGresult *res);
@@ -369,19 +369,19 @@ void *PQresultAlloc(PGresult *res, size_t nBytes);
 int	PQsetvalue(PGresult *res, int tup_num, int field_num, char *value, int len);
 
 size_t PQescapeStringConn(PGconn *conn,
-				   char *to, const char *from, size_t length,
-				   int *error);
+                   char *to, const char *from, size_t length,
+                   int *error);
 char *PQescapeLiteral(PGconn *conn, const char *str, size_t len);
 char *PQescapeIdentifier(PGconn *conn, const char *str, size_t len);
 ubyte *PQescapeByteaConn(PGconn *conn,
-				  const ubyte *from, size_t from_length,
-				  size_t *to_length);
+                  const ubyte *from, size_t from_length,
+                  size_t *to_length);
 ubyte *PQunescapeBytea(const ubyte *strtext,
-				size_t *retbuflen);
+                size_t *retbuflen);
 
 void PQprint(FILE *fout,
-		const PGresult *res,
-		const PQprintOpt *ps);
+        const PGresult *res,
+        const PQprintOpt *ps);
 
 int	lo_open(PGconn *conn, Oid lobjId, int mode);
 int	lo_close(PGconn *conn, int fd);
