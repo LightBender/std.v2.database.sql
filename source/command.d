@@ -1,4 +1,4 @@
-module std.experimental.database.sql.query;
+module std.experimental.database.sql.command;
 
 import std.datetime;
 import std.typecons;
@@ -42,7 +42,7 @@ public struct SqlParameter
     }
 }
 
-public struct SqlQuery
+public struct SqlCommand
 {
     public string query;
     public int timeout;

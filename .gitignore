@@ -8,3 +8,4 @@ __dummy.html
 __test__*__
 *-test-library
 *.db
+.vscode/
