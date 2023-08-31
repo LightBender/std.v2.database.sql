@@ -6,6 +6,8 @@ import std.typecons;
 import std.variant;
 import std.uuid;
 
+import etc.c.odbc.sqlucode;
+
 import std.experimental.database.sql.command;
 import std.experimental.database.sql.reader;
 import std.experimental.database.sql.table;

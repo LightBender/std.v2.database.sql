@@ -3,6 +3,8 @@ module std.experimental.database.sql.row;
 import std.typecons;
 import std.variant;
 
+import etc.c.odbc.sqlucode;
+
 import std.experimental.database.sql.value;
 
 public final class SqlRow
