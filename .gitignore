@@ -5,6 +5,8 @@ __dummy.html
 *.o
 *.a
 *.obj
+*.lib
+*.exe
 __test__*__
 *-test-library
 *.db

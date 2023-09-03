@@ -1,4 +1,4 @@
-module std.experimental.database.sql.value;
+module std.v2.database.sql.value;
 
 import std.conv;
 import std.datetime;

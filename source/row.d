@@ -1,11 +1,11 @@
-module std.experimental.database.sql.row;
+module std.v2.database.sql.row;
 
 import std.typecons;
 import std.variant;
 
 import etc.c.odbc.sqlucode;
 
-import std.experimental.database.sql.value;
+import std.v2.database.sql.value;
 
 public final class SqlRow
 {

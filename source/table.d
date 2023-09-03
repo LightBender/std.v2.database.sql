@@ -1,4 +1,4 @@
-module std.experimental.database.sql.table;
+module std.v2.database.sql.table;
 
 import std.array;
 import std.datetime;
@@ -9,9 +9,9 @@ import std.uuid;
 
 import etc.c.odbc.sqlucode;
 
-import std.experimental.database.sql.reader;
-import std.experimental.database.sql.row;
-import std.experimental.database.sql.value;
+import std.v2.database.sql.reader;
+import std.v2.database.sql.row;
+import std.v2.database.sql.value;
 
 import std.stdio;
 
@@ -38,7 +38,7 @@ public final class SqlTable
 		}
 	}
 
-	public this(SqlReader reader)
+	public this(ISqlReader reader)
 	{
 		while(reader.next())
 		{

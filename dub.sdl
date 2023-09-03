@@ -1,0 +1,5 @@
+name "stdv2-database-sql"
+description "Proposed generic SQL database interface API for the D Standard Library."
+authors "Adam Wilson"
+copyright "Copyright © 2017-2023, Adam Wilson"
+license "BSL-1.0"

@@ -1,12 +1,12 @@
-module std.experimental.database.sql.reader;
+module std.v2.database.sql.reader;
 
 import std.typecons;
 
 import etc.c.odbc.sqlucode;
 
-import std.experimental.database.sql.row;
+import std.v2.database.sql.row;
 
-public interface SqlReader
+public interface ISqlReader
 {
 	@property bool hasRows();
 

@@ -1,4 +1,4 @@
-module std.experimental.database.sql.command;
+module std.v2.database.sql.command;
 
 import std.datetime;
 import std.typecons;
@@ -7,10 +7,10 @@ import std.uuid;
 
 import etc.c.odbc.sqlucode;
 
-import std.experimental.database.sql.connection;
-import std.experimental.database.sql.reader;
-import std.experimental.database.sql.table;
-import std.experimental.database.sql.value;
+import std.v2.database.sql.connection;
+import std.v2.database.sql.reader;
+import std.v2.database.sql.table;
+import std.v2.database.sql.value;
 
 public enum SqlParameterDirection
 {

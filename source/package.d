@@ -1,8 +1,8 @@
-module std.experimental.database.sql;
+module std.v2.database.sql;
 
-public import std.experimental.database.sql.connection;
-public import std.experimental.database.sql.table;
-public import std.experimental.database.sql.reader;
-public import std.experimental.database.sql.row;
-public import std.experimental.database.sql.command;
-public import std.experimental.database.sql.value;
+public import std.v2.database.sql.connection;
+public import std.v2.database.sql.table;
+public import std.v2.database.sql.reader;
+public import std.v2.database.sql.row;
+public import std.v2.database.sql.command;
+public import std.v2.database.sql.value;
