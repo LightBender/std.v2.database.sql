@@ -19,11 +19,11 @@ public class SqlConnection {
     private static ODBCHandle envHandle;
 
     static this() {
-        envHandle = ODBCAllocHandle(SQL_HANDLE_ENV);
-        ODBCSetEnvAttr(envHandle, SQL_ATTR_ODBC_VERSION, to!string(SQL_SPEC_STRING));
-        //ODBCSetEnvAttr(null, SQL_CP_DRIVER_AWARE, null, null); Not supported in current ODBC bindings
+        envHandle = ODBCAllocHandle();
+        ODBCSetEnvAttr(envHandle, SQL_ATTR_ODBC_VERSION, 380);
+        ODBCSetEnvAttr(envHandle, 201, 3); //Enable connection polling and set the pooling mode to Driver Aware
     }
-    
+
     static ~this() {
         ODBCFreeHandle(envHandle);
     }
@@ -34,31 +34,46 @@ public class SqlConnection {
 
     public this(string connectionString) {
         this.connStr = connectionString;
-
-        connectionHandle = ODBCAllocHandle(SQL_HANDLE_DBC, envHandle);
-    }
-
-    ~this() {
-        ODBCFreeHandle(connectionHandle);
     }
 
     public bool open() {
+        connectionHandle = ODBCAllocHandle(SQL_HANDLE_DBC, envHandle);
         connStr = ODBCDriverConnect(connectionHandle, null, connStr, cast(ushort)SQL_DRIVER_NOPROMPT);
         return true;
     }
 
     public void close() {
         ODBCDisconnect(connectionHandle);
+        ODBCFreeHandle(connectionHandle);
     }
 }
 
-//New a class to initialize the statics and get an ODBC environment.
+//New a class to run the static initializers and get an ODBC environment.
 unittest
 {
     import std.stdio;
     SqlConnection t = new SqlConnection(string.init);
     assert(t.envHandle.isValid);
     writeln("SqlConnection successfully initialized.");
+}
+
+unittest {
+	import std.stdio;
+	import std.process;
+
+	string server = environment.get("ODBCTEST_SERVER");
+	string database = environment.get("ODBCTEST_DATABASE");
+	string user = environment.get("ODBCTEST_USER");
+	string password = environment.get("ODBCTEST_PASSWORD");
+
+	assert (server !is null && database !is null && user !is null && password !is null);
+
+	SqlConnection t = new SqlConnection("Driver={ODBC Driver 17 for SQL Server};Server=" ~ server ~ ";Database=" ~ database ~ ";UID=" ~ user ~ ";PWD={" ~ password ~ "};Encrypt=yes;TrustServerCertificate=yes;");
+	writeln(t.connectionString);
+	t.open();
+	writeln("Connection successfully opened to server: " ~ server);
+	t.close();
+	writeln("Connection closed.");
 }
 
 public interface ISqlConnection

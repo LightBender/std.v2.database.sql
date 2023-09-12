@@ -5,7 +5,9 @@ public import etc.c.odbc.sqlext;
 public import etc.c.odbc.sqltypes;
 public import etc.c.odbc.sqlucode;
 
+import std.ascii;
 import std.conv;
+import std.stdio;
 import std.string;
 import std.typecons;
 import std.utf;
@@ -27,16 +29,13 @@ public class ODBCException : Exception {
     }
 }
 
-public: 
-    ODBCHandle ODBCAllocHandle(short HandleType) @trusted
+public:
+    ODBCHandle ODBCAllocHandle() @trusted
     {
-        if (HandleType != SQL_HANDLE_ENV) {
-            throw new ODBCException("HandleType must be SQL_HANDLE_ENV.");
-        }
-
         SQLHANDLE outHandle;
-        auto rv = SQLAllocHandle(HandleType, null, &outHandle);
-        ODBCHandle ret = { handle:outHandle, handleType:HandleType };
+        auto rv = SQLAllocHandle(SQL_HANDLE_ENV, null, &outHandle);
+		if (rv == SQL_ERROR || outHandle == null) throw new ODBCException("Unable to allocate enivronment handle.");
+        ODBCHandle ret = { handle:outHandle, handleType:SQL_HANDLE_ENV };
         return ret;
     }
 
@@ -47,7 +46,7 @@ public:
         }
 
         SQLHANDLE outHandle;
-        auto rv = SQLAllocHandle(HandleType, InputHandle.handle, &outHandle);
+        ODBCThrowOnError(SQLAllocHandle(HandleType, InputHandle.handle, &outHandle), InputHandle, "Driver Error: Invalid Handle");
         ODBCHandle ret = { handle:outHandle, handleType:HandleType };
         return ret;
     }
@@ -69,7 +68,7 @@ public:
             throw new ODBCException("Invalid handle provided. Please provide a valid Connection handle.");
         }
 
-        auto rv = SQLDisconnect(ConnectionHandle.handle);
+        ODBCThrowOnError(SQLDisconnect(ConnectionHandle.handle), ConnectionHandle, "Error while disconnecting:");
     }
 
 	__gshared short ODBCEndTran(short HandleType, void* Handle, short CompletionType);
@@ -79,9 +78,9 @@ public:
 	__gshared short ODBCFetch(void* StatementHandle);
 	__gshared short ODBCFetchScroll(void* StatementHandle, short FetchOrientation, long FetchOffset);
 
-	void ODBCFreeHandle(ODBCHandle Handle) @trusted
+	void ODBCFreeHandle(ODBCHandle handle) @trusted
     {
-        auto rv = SQLFreeHandle(Handle.handleType, Handle.handle);
+        ODBCThrowOnError(SQLFreeHandle(handle.handleType, handle.handle), handle, "Error freeing handle:");
     }
 
 	__gshared short ODBCGetConnectAttr(void* ConnectionHandle, int Attribute, void* Value, int BufferLength, int* StringLengthPtr);
@@ -106,25 +105,27 @@ public:
 	__gshared short ODBCSetDescField(void* DescriptorHandle, short RecNumber, short FieldIdentifier, void* Value, int BufferLength);
 	__gshared short ODBCSetDescRec(void* DescriptorHandle, short RecNumber, short Type, short SubType, long Length, short Precision, short Scale, void* Data, long* StringLength, long* Indicator);
 
-	void ODBCSetEnvAttr(ODBCHandle EnvironmentHandle, int Attribute, int Value) @trusted {
-        if (EnvironmentHandle.handleType != SQL_HANDLE_ENV) {
+	void ODBCSetEnvAttr(ODBCHandle environmentHandle, int attribute, int value) @trusted {
+        if (environmentHandle.handleType != SQL_HANDLE_ENV) {
             throw new ODBCException("Invalid handle provided. Please provide a valid Environment handle.");
         }
-        auto rv = SQLSetEnvAttr(EnvironmentHandle.handle, Attribute, &Value, 0);
+        ODBCThrowOnError(SQLSetEnvAttr(environmentHandle.handle, attribute, cast(void*)value, 0), environmentHandle, "Error in SetEnvAttr:");
     }
 
-	void ODBCSetEnvAttr(ODBCHandle EnvironmentHandle, int Attribute, string Value) @trusted {
-        if (EnvironmentHandle.handleType != SQL_HANDLE_ENV) {
+	void ODBCSetEnvAttr(ODBCHandle environmentHandle, int attribute, string value) @trusted {
+        if (environmentHandle.handleType != SQL_HANDLE_ENV) {
             throw new ODBCException("Invalid handle provided. Please provide a valid Environment handle.");
         }
-        auto rv = SQLSetEnvAttr(EnvironmentHandle.handle, Attribute, cast(void*)Value.toStringz, cast(int)Value.length);
+
+		int len = cast(int)(cast(ubyte[])value).length+1;
+        ODBCThrowOnError(SQLSetEnvAttr(environmentHandle.handle, attribute, cast(void*)value.toStringz(), cast(int)len), environmentHandle, "Error in SetEnvAttr:");
     }
 
-	void ODBCSetEnvAttr(ODBCHandle EnvironmentHandle, int Attribute, ubyte[] Value) @trusted {
-        if (EnvironmentHandle.handleType != SQL_HANDLE_ENV) {
+	void ODBCSetEnvAttr(ODBCHandle environmentHandle, int attribute, ubyte[] value) @trusted {
+        if (environmentHandle.handleType != SQL_HANDLE_ENV) {
             throw new ODBCException("Invalid handle provided. Please provide a valid Environment handle.");
         }
-        auto rv = SQLSetEnvAttr(EnvironmentHandle.handle, Attribute, cast(void*)Value.ptr, cast(int)Value.length);
+        ODBCThrowOnError(SQLSetEnvAttr(environmentHandle.handle, attribute, cast(void*)value.ptr, cast(int)value.length), environmentHandle, "Error in SetEnvAttr:");
     }
 
 	__gshared short ODBCSetStmtAttr(void* StatementHandle, int Attribute, void* Value, int StringLength);
@@ -173,15 +174,13 @@ public:
 	__gshared short SQLSetDescFieldW(void* DescriptorHandle, short RecNumber, short FieldIdentifier, void* Value, int BufferLength);
 	__gshared short SQLGetDescFieldW(void* hdesc, short iRecord, short iField, void* rgbValue, int cbBufferLength, int* StringLength);
 	__gshared short SQLGetDescRecW(void* hdesc, short iRecord, ushort* szName, short cchNameMax, short* pcchName, short* pfType, short* pfSubType, long* pLength, short* pPrecision, short* pScale, short* pNullable);
-	__gshared short SQLGetDiagFieldW(short fHandleType, void* handle, short iRecord, short fDiagField, void* rgbDiagInfo, short cbBufferLength, short* pcbStringLength);
-	__gshared short SQLGetDiagRecW(short fHandleType, void* handle, short iRecord, ushort* szSqlState, int* pfNativeError, ushort* szErrorMsg, short cchErrorMsgMax, short* pcchErrorMsg);
 	__gshared short SQLPrepareW(void* hstmt, ushort* szSqlStr, int cchSqlStr);
 	void ODBCSetConnectAttr(ODBCHandle connectionHandle, int attribute, int value) @trusted {
         if (connectionHandle.handleType != SQL_HANDLE_DBC) {
             throw new ODBCException("Invalid handle provided. Please provide a valid Connection handle.");
         }
 
-        auto rv = SQLSetConnectAttrW(connectionHandle.handle, attribute, cast(void*)value, SQL_IS_INTEGER);
+        ODBCThrowOnError(SQLSetConnectAttrW(connectionHandle.handle, attribute, cast(void*)value, SQL_IS_INTEGER), connectionHandle, "Error in SetConnectAttr:");
     }
 
 	void ODBCSetConnectAttr(ODBCHandle connectionHandle, int attribute, uint value) @trusted {
@@ -189,7 +188,7 @@ public:
             throw new ODBCException("Invalid handle provided. Please provide a valid Connection handle.");
         }
 
-        auto rv = SQLSetConnectAttrW(connectionHandle.handle, attribute, cast(void*)value, SQL_IS_UINTEGER);
+        ODBCThrowOnError(SQLSetConnectAttrW(connectionHandle.handle, attribute, cast(void*)value, SQL_IS_UINTEGER), connectionHandle, "Error in SetConnectAttr:");
     }
 
 	void ODBCSetConnectAttr(ODBCHandle connectionHandle, int attribute, string value) @trusted {
@@ -198,7 +197,7 @@ public:
         }
 
         auto wcs = value.toUTF16;
-        auto rv = SQLSetConnectAttrW(connectionHandle.handle, attribute, cast(wchar*)value.toUTF16z, cast(int)value.length);
+        ODBCThrowOnError(SQLSetConnectAttrW(connectionHandle.handle, attribute, cast(wchar*)value.toUTF16z, cast(int)value.length), connectionHandle, "Error in SetConnectAttr:");
     }
 
 	void ODBCSetConnectAttr(ODBCHandle connectionHandle, int attribute, ubyte[] value) @trusted {
@@ -206,7 +205,7 @@ public:
             throw new ODBCException("Invalid handle provided. Please provide a valid Connection handle.");
         }
 
-        auto rv = SQLSetConnectAttrW(connectionHandle.handle, attribute, value.ptr, cast(int)-value.length);
+        ODBCThrowOnError(SQLSetConnectAttrW(connectionHandle.handle, attribute, value.ptr, cast(int)-value.length), connectionHandle, "Error in SetConnectAttr:");
     }
 
 	__gshared short SQLSetCursorNameW(void* hstmt, ushort* szCursor, short cchCursor);
@@ -227,7 +226,7 @@ public:
         auto wcs = connectionString.toUTF16;
         wchar[2048] connStrOutput;
         short connStrOutputLen;
-        SQLDriverConnectW(connectionHandle.handle, hwnd, cast(wchar*)wcs.toUTF16z, cast(short)wcs.length, connStrOutput.ptr, cast(short)2048, &connStrOutputLen, fDriverCompletion);
+        ODBCThrowOnError(SQLDriverConnectW(connectionHandle.handle, hwnd, cast(wchar*)wcs.toUTF16z, cast(short)wcs.length, connStrOutput.ptr, cast(short)2048, &connStrOutputLen, fDriverCompletion), connectionHandle, "The following errors occured while attempting to open the connection:");
         return to!string(connStrOutput[0..connStrOutputLen]);
     }
 
@@ -242,3 +241,25 @@ public:
 	__gshared short SQLProceduresW(void* hstmt, ushort* szCatalogName, short cchCatalogName, ushort* szSchemaName, short cchSchemaName, ushort* szProcName, short cchProcName);
 	__gshared short SQLTablePrivilegesW(void* hstmt, ushort* szCatalogName, short cchCatalogName, ushort* szSchemaName, short cchSchemaName, ushort* szTableName, short cchTableName);
 	__gshared short SQLDriversW(void* henv, ushort fDirection, ushort* szDriverDesc, short cchDriverDescMax, short* pcchDriverDesc, ushort* szDriverAttributes, short cchDrvrAttrMax, short* pcchDrvrAttr);
+
+private:
+	void ODBCThrowOnError(short result, ODBCHandle handle, string message) @trusted {
+		message = newline ~ message;
+		if (result == SQL_ERROR || result == SQL_INVALID_HANDLE) {
+			short recordCount = 0;
+			SQLGetDiagFieldW(handle.handleType, handle.handle, cast(short)0, cast(short)SQL_DIAG_NUMBER, cast(void*)&recordCount, cast(short)0, null);
+
+			int nativeError;
+			short msgLen;
+			short i = 1;
+			wchar[SQL_MAX_MESSAGE_LENGTH] msg;
+			wchar[6] sqlState;
+			while (i <= recordCount && SQLGetDiagRecW(handle.handleType, handle.handle, i, sqlState.ptr, &nativeError, msg.ptr, cast(short)SQL_MAX_MESSAGE_LENGTH, &msgLen) != SQL_NO_DATA) {
+				i++;
+				message ~= newline ~ "\t" ~ to!string(nativeError) ~ "\t" ~ to!string(fromStringz(sqlState)) ~ "\t" ~ to!string(fromStringz(msg));
+			}
+			throw new ODBCException(message);
+		}
+
+		return;
+	}
